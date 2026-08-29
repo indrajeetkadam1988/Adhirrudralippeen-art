@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { createPaymentIntent } from "@/firebase/payments";
 import { createOrder } from "@/firebase/orders";
 import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
+import { AddressForm, isAddressComplete } from "@/components/AddressForm";
 import { colors, spacing } from "@/theme/colors";
 import { formatMoney } from "@/utils/format";
 import type { Address } from "@/types";
@@ -32,12 +32,9 @@ export default function CheckoutScreen() {
   const updateField = (key: keyof Address, value: string) =>
     setAddress((prev) => ({ ...prev, [key]: value }));
 
-  const isAddressComplete =
-    address.line1 && address.city && address.state && address.postalCode && address.country;
-
   const handlePay = async () => {
     if (!user || !profile) return;
-    if (!isAddressComplete) {
+    if (!isAddressComplete(address)) {
       setError("Please fill in your full shipping address.");
       return;
     }
@@ -83,29 +80,7 @@ export default function CheckoutScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.lg }}>
       <Text style={styles.sectionTitle}>Shipping address</Text>
-      <Input
-        label="Address line 1"
-        value={address.line1}
-        onChangeText={(v) => updateField("line1", v)}
-      />
-      <Input
-        label="Address line 2 (optional)"
-        value={address.line2}
-        onChangeText={(v) => updateField("line2", v)}
-      />
-      <Input label="City" value={address.city} onChangeText={(v) => updateField("city", v)} />
-      <Input label="State" value={address.state} onChangeText={(v) => updateField("state", v)} />
-      <Input
-        label="Postal code"
-        value={address.postalCode}
-        onChangeText={(v) => updateField("postalCode", v)}
-        keyboardType="number-pad"
-      />
-      <Input
-        label="Country"
-        value={address.country}
-        onChangeText={(v) => updateField("country", v)}
-      />
+      <AddressForm address={address} onChange={updateField} />
 
       <View style={styles.summary}>
         <Text style={styles.summaryLabel}>Total to pay</Text>
