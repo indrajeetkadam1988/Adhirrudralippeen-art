@@ -1,18 +1,21 @@
 # Lippeen Art
 
-A cross-platform (iOS + Android) mobile app for a Lippan (Kutchi mud & mirror relief)
-art business. Customers sign up, browse a ready-made catalog, place paid orders, and
-submit custom art requests with reference photos. The business owner manages every
-order and custom request in real time from an admin view inside the same app.
+A Lippan (Kutchi mud & mirror relief) art business app that runs on **iOS, Android,
+and the web from one codebase**. Customers sign up, browse a ready-made catalog, place
+paid orders, and submit custom art requests with reference photos. The business owner
+manages every order and custom request in real time from an admin view inside the same
+app.
 
-Built with **Expo + React Native**, **Firebase** (Auth, Firestore, Storage, Cloud
-Functions), and **Stripe** for payments.
+Built with **Expo + React Native (+ React Native Web)**, **Firebase** (Auth,
+Firestore, Storage, Cloud Functions, Hosting), and **Stripe** for payments.
 
 ## What's implemented
 
 - Email/password sign up, login, password reset (Firebase Auth)
 - Ready-made product catalog with real-time updates (Firestore)
-- Cart, shipping address, and real card checkout (Stripe PaymentSheet)
+- Cart, shipping address, and real card checkout — Stripe PaymentSheet on iOS/Android,
+  Stripe Elements on the web (same Cloud Function backs both, see
+  [app/checkout.tsx](app/checkout.tsx) vs [app/checkout.web.tsx](app/checkout.web.tsx))
 - Order creation + live order status tracking for the customer
 - Custom art request form with photo upload (Firebase Storage)
 - Admin view (role-gated) to update order status and send quotes on custom
@@ -31,6 +34,9 @@ you and need your/your client's own accounts:
 3. **Apple Developer Program** ($99/yr) and **Google Play Console** ($25 one-time) —
    required to publish. I can prepare the build and walk you through submission, but
    creating these accounts and clicking "Submit for review" has to be your client.
+4. **A custom domain for the website** (optional) — Firebase Hosting gives you a free
+   `.web.app` URL with no purchase needed; a custom domain like `lippeenart.com` is a
+   real purchase from a domain registrar, which has to be your/your client's decision.
 
 Real product photos and branding (app icon, splash screen) are also still placeholders
 — see "Branding" below.
@@ -192,7 +198,34 @@ eas submit --platform ios
 - Apple also asks for **App Privacy** "nutrition label" answers and may ask for a demo
   account during review — the admin account you created in step 2 works for that.
 
-## 6. Branding
+## 6. Deploying the website
+
+The exact same app builds to a website, using Firebase Hosting (the same Firebase
+project from step 1 — no separate hosting account needed).
+
+1. Make sure `.env` is filled in (step 1) and Cloud Functions are deployed (step 3) —
+   the web build talks to the same backend as the mobile apps.
+2. Build and deploy:
+
+```bash
+npm run deploy:web
+```
+
+This runs `expo export -p web` (outputs to `dist/`) then `firebase deploy --only
+hosting`. Firebase will print a live URL like `https://<project-id>.web.app` when it
+finishes.
+
+3. **Custom domain (optional):** in the Firebase console → **Hosting → Add custom
+   domain**, you can point a domain you own (e.g. `lippeenart.com`) at the site.
+   Buying a domain is a real purchase on a registrar of your choice (Namecheap,
+   GoDaddy, etc.) — that's your call to make and pay for, not something I can do on
+   your behalf.
+
+Note: card checkout on the web needs the site served over **HTTPS** — Firebase Hosting
+gives you that automatically (including on the default `.web.app` domain), so this
+only matters if you later move hosting elsewhere.
+
+## 7. Branding
 
 Replace these before submitting (currently the default Expo placeholder icons):
 
@@ -215,15 +248,18 @@ app/                  Screens (Expo Router - file-based routing)
   (tabs)/              Shop, Custom order, Cart, Orders, Profile, Admin
   product/[id].tsx      Product detail
   order/[id].tsx         Order detail + live status tracking
-  checkout.tsx            Stripe checkout
+  checkout.tsx            Stripe checkout - iOS/Android (native PaymentSheet)
+  checkout.web.tsx         Stripe checkout - web (Stripe Elements)
 src/
   firebase/            Firestore/Auth/Storage/Functions helpers
+  stripe/                Platform-specific Stripe provider wrapper
   context/              Auth + Cart React context
   components/            Shared UI
   types/                  Shared TypeScript types
 functions/             Cloud Functions (Stripe PaymentIntent + webhook)
 scripts/seed.ts        Seeds sample products + grants admin role
 firestore.rules / storage.rules   Security rules
+firebase.json           Firestore/Storage/Functions/Hosting config
 ```
 
 ## Currency
