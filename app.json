@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Lippeen Art",
+    "slug": "lippeen-art",
+    "scheme": "lippeenart",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lippeenart.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Lippeen Art uses your camera so you can photograph a reference image for a custom art request.",
+        "NSPhotoLibraryUsageDescription": "Lippeen Art needs access to your photos so you can attach a reference image to a custom art request."
+      }
+    },
+    "android": {
+      "package": "com.lippeenart.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F8F1E7",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-splash-screen",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Lippeen Art needs access to your photos so you can attach a reference image to a custom art request."
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.lippeenart.app",
+          "enableGooglePay": true
+        }
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "router": {}
+    }
+  }
+}
